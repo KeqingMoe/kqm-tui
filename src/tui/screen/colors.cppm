@@ -635,7 +635,7 @@ constexpr auto palette256_table = std::array<color_info, 256uz>{
 /**
  * @brief 获取 16 种预设的颜色的对应的信息
  */
-constexpr auto get_color_info(palette16 index) noexcept -> color_info
+constexpr auto get_color_info(palette16 index) noexcept -> const color_info&
 {
     return palette256_table[std::to_underlying(index)];
 }
@@ -643,9 +643,33 @@ constexpr auto get_color_info(palette16 index) noexcept -> color_info
 /**
  * @brief 获取 256 种预设的颜色的对应的信息
  */
-constexpr auto get_color_info(palette256 index) noexcept -> color_info
+constexpr auto get_color_info(palette256 index) noexcept -> const color_info&
 {
     return palette256_table[std::to_underlying(index)];
+}
+
+/**
+ * @brief 从 RGB 值获取最接近的 256 种预设颜色
+ */
+constexpr auto get_nearest_palette256(rgb_t rgb) noexcept -> palette256
+{
+    auto p256 = std::views::all(palette256_table) | std::views::drop(16uz);
+    auto it   = std::ranges::min_element(p256, {}, [rgb](const color_info& c) {
+        auto dr = c.red - rgb.red;
+        auto dg = c.green - rgb.green;
+        auto db = c.blue - rgb.blue;
+        return dr * dr + dg * dg + db * db;
+    });
+    return static_cast<palette256>(it->index256);
+}
+
+/**
+ * @brief 从 256 种预设颜色获取最接近的 16 种预设颜色
+ */
+constexpr auto get_nearest_palette16(palette256 c) noexcept -> palette16
+{
+    auto&& p16 = get_color_info(c);
+    return static_cast<palette16>(p16.index16);
 }
 
 }
