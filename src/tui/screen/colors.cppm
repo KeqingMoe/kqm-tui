@@ -305,7 +305,11 @@ enum struct palette256 : u8
  */
 struct rgb_t
 {
-    u8 red{}, green{}, blue{};
+    u8 red{};
+    u8 green{};
+    u8 blue{};
+
+    friend auto operator==(rgb_t, rgb_t) noexcept -> bool  = default;
 };
 
 /**
@@ -671,6 +675,46 @@ constexpr auto get_nearest_palette16(palette256 c) noexcept -> palette16
     auto&& p16 = get_color_info(c);
     return static_cast<palette16>(p16.index16);
 }
+
+/**
+ * @brief 颜色正规化
+ * @arg `palette1`
+ * @return `rgb_t`
+ */
+constexpr auto normalize(palette1) noexcept -> rgb_t
+{
+    return rgb_t{0, 0, 0};
+}
+/**
+ * @brief 颜色正规化
+ * @arg `palette16` 16 种预设颜色
+ * @return `rgb_t `
+ */
+constexpr auto normalize(palette16 c) noexcept -> rgb_t
+{
+    auto&& info = get_color_info(c);
+    return rgb_t{info.red, info.green, info.blue};
+}
+/**
+ * @brief 颜色正规化
+ * @arg `palette256` 256 种预设颜色
+ * @return `rgb_t`
+ */
+constexpr auto normalize(palette256 c) noexcept -> rgb_t
+{
+    auto&& info = get_color_info(c);
+    return rgb_t{info.red, info.green, info.blue};
+}
+/**
+ * @brief 颜色正规化
+ * @arg `rgb_t` RGB 真彩色
+ * @return `rgb_t`
+ */
+constexpr auto normalize(rgb_t rgb) noexcept -> rgb_t
+{
+    return rgb;
+}
+
 
 }
 
